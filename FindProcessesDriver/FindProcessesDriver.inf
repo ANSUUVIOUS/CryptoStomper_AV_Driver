@@ -1,0 +1,77 @@
+;
+; FindProcessesDriver.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: specify appropriate Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=FindProcessesDriver.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+FindProcessesDriver_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+FindProcessesDriver.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%FindProcessesDriver.DeviceDesc%=FindProcessesDriver_Device, Root\FindProcessesDriver ; TODO: edit hw-id
+
+[FindProcessesDriver_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+FindProcessesDriver.sys
+
+;-------------- Service installation
+[FindProcessesDriver_Device.NT.Services]
+AddService = FindProcessesDriver,%SPSVCINST_ASSOCSERVICE%, FindProcessesDriver_Service_Inst
+
+; -------------- FindProcessesDriver driver install sections
+[FindProcessesDriver_Service_Inst]
+DisplayName    = %FindProcessesDriver.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\FindProcessesDriver.sys
+
+;
+;--- FindProcessesDriver_Device Coinstaller installation ------
+;
+
+[FindProcessesDriver_Device.NT.CoInstallers]
+AddReg=FindProcessesDriver_Device_CoInstaller_AddReg
+CopyFiles=FindProcessesDriver_Device_CoInstaller_CopyFiles
+
+[FindProcessesDriver_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[FindProcessesDriver_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[FindProcessesDriver_Device.NT.Wdf]
+KmdfService =  FindProcessesDriver, FindProcessesDriver_wdfsect
+[FindProcessesDriver_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "FindProcessesDriver Installation Disk"
+FindProcessesDriver.DeviceDesc = "FindProcessesDriver Device"
+FindProcessesDriver.SVCDESC = "FindProcessesDriver Service"

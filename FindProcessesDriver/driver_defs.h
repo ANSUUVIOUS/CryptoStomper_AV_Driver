@@ -1,0 +1,22 @@
+#pragma once
+#define DEVICE_NAME_MACRO	 L"\\Device\\Inspector"
+#define DEVICE_LINK_MACRO	 L"\\??\\ProcessInvestigator"
+#define IOCTL_GET_PROCESSES  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_GET_IMAGE_INFO  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_KILL_PROCESS   CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS) 
+
+typedef NTSTATUS(*_ZwQuerySystemInformation)(UINT, PVOID, ULONG, PULONG);
+typedef NTKERNELAPI PPEB(*_PsGetProcessPeb)(IN PEPROCESS Process);
+NTKERNELAPI
+PVOID
+PsGetProcessSectionBaseAddress(
+    __in PEPROCESS Process
+);
+
+NTSTATUS MmUnmapViewOfSection(PEPROCESS Process, PVOID BaseAddress);
+
+NTKERNELAPI
+PUCHAR
+PsGetProcessImageFileName(
+    __in PEPROCESS Process
+);
